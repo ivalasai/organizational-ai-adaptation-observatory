@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FirmYearInvestmentFeatures",
+  "description": "Firm-year organizational investment signal features",
+  "type": "object",
+  "required": ["firm_id", "year", "source"],
+  "properties": {
+    "firm_id": { "type": "string", "pattern": "^OAA-" },
+    "year": { "type": "integer", "minimum": 1990 },
+    "source": { "type": "string" },
+    "event_count": { "type": "integer", "minimum": 0 },
+    "ai_patent_count": { "type": ["integer", "null"], "minimum": 0 },
+    "ai_job_posting_count": { "type": ["integer", "null"], "minimum": 0 },
+    "ai_hiring_intensity": { "type": ["number", "null"], "minimum": 0 }
+  }
+}

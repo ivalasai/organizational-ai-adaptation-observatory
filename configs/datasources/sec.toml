@@ -1,0 +1,19 @@
+name = "sec_filings"
+enabled = true
+signal_layer = "attention"
+raw_subdir = "sec"
+intermediate_subdir = "sec"
+features_subdir = "attention/sec"
+start_year = 2010
+filing_types = ["10-K", "10-Q", "8-K"]
+
+ai_keywords = [
+    "artificial intelligence",
+    "machine learning",
+    "deep learning",
+    "neural network",
+    "generative ai",
+    "large language model",
+    "natural language processing",
+    "computer vision",
+]

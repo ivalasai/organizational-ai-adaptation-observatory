@@ -1,0 +1,16 @@
+name = "jobs"
+enabled = true
+signal_layer = "investment"
+raw_subdir = "jobs"
+intermediate_subdir = "jobs"
+features_subdir = "investment/jobs"
+start_year = 2010
+
+ai_role_keywords = [
+    "machine learning engineer",
+    "ai researcher",
+    "data scientist",
+    "mlops",
+    "deep learning engineer",
+    "nlp engineer",
+]
