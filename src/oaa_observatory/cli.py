@@ -175,23 +175,32 @@ def validation_sample(
         Path("data/intermediate/sec/documents.parquet"),
         "--documents",
     ),
-    output: Path = typer.Option(
-        Path("data/validation/attention_labels.csv"),
-        "--output",
+    labeling: Path = typer.Option(
+        Path("data/validation/attention_labeling.csv"),
+        "--labeling",
+    ),
+    scores: Path = typer.Option(
+        Path("data/validation/attention_scores.csv"),
+        "--scores",
     ),
     log_level: str = typer.Option("INFO", "--log-level", "-l"),
 ) -> None:
-    """Generate stratified labeling sample from parsed filings."""
+    """Generate blind labeling sample + separate model scores file."""
     _setup(log_level)
-    path = generate_validation_sample(documents, output)
-    console.print(f"[green]Wrote labeling sample:[/green] {path}")
+    labeling_path, scores_path = generate_validation_sample(documents, labeling, scores)
+    console.print(f"[green]Wrote blind labeling file:[/green] {labeling_path}")
+    console.print(f"[dim]Wrote model scores (do not open while labeling):[/dim] {scores_path}")
 
 
 @validation_app.command("run")
 def validation_run(
     labels: Path = typer.Option(
-        Path("data/validation/attention_labels.csv"),
+        Path("data/validation/attention_labeling.csv"),
         "--labels",
+    ),
+    scores: Path = typer.Option(
+        Path("data/validation/attention_scores.csv"),
+        "--scores",
     ),
     report: Path = typer.Option(
         Path("docs/validation/attention_classifier_validation.md"),
@@ -202,9 +211,14 @@ def validation_run(
     """Compute validation metrics or write pending template."""
     _setup(log_level)
     try:
-        metrics = compute_validation_metrics(labels)
-        write_validation_report(metrics, report, labels)
+        metrics = compute_validation_metrics(labels, scores)
+        write_validation_report(metrics, report, labels, scores)
         console.print(f"[green]Validation report:[/green] {report}")
+        console.print(
+            f"Precision {metrics['precision']:.3f} | "
+            f"Recall {metrics['recall']:.3f} | "
+            f"FP {metrics['fp']} | FN {metrics['fn']}"
+        )
     except ValueError as exc:
         render_pending_template(report, labels)
         console.print(f"[yellow]{exc}[/yellow]")

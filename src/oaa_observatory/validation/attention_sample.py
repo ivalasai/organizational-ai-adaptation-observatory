@@ -33,23 +33,32 @@ def _excerpt(text: str, length: int = EXCERPT_CHARS) -> str:
 
 def generate_validation_sample(
     documents_path: Path,
-    output_path: Path,
+    labeling_path: Path,
+    scores_path: Path | None = None,
     sample_size: int = SAMPLE_SIZE,
     keywords: list[str] | None = None,
-) -> Path:
+) -> tuple[Path, Path]:
     """Sample filing excerpts stratified by year and AI-mention density.
 
-    Writes a CSV with a blank ``human_ai_mention`` column for manual labeling.
+    Writes two CSVs so human labeling stays blind to model output:
+
+    * **Labeling file** — ``sample_id``, ``excerpt``, blank ``human_ai_mention``
+    * **Scores file** — metadata + ``keyword_predicted`` / ``ai_mention_count``
+      (used only when running ``oaa validation run``)
 
     Args:
         documents_path: Intermediate documents Parquet from SEC pipeline.
-        output_path: Destination CSV path.
+        labeling_path: Blind labeling CSV for manual work.
+        scores_path: Model-side CSV (defaults to ``labeling_path`` sibling
+            ``attention_scores.csv``).
         sample_size: Target number of excerpts (approximate after stratification).
-        keywords: Keyword list for auto-suggested label column.
+        keywords: Keyword list for classifier predictions in the scores file.
 
     Returns:
-        Path to the labeling CSV.
+        ``(labeling_path, scores_path)`` tuple.
     """
+    if scores_path is None:
+        scores_path = labeling_path.parent / "attention_scores.csv"
     counter = KeywordCounter(keywords or DEFAULT_KEYWORDS)
     docs = pd.read_parquet(documents_path)
     if docs.empty:
@@ -71,7 +80,6 @@ def generate_validation_sample(
                 "density_bin": _density_bin(counts.mention_count),
                 "excerpt": _excerpt(text),
                 "keyword_predicted": int(counts.mention_count > 0),
-                "human_ai_mention": "",
             }
         )
 
@@ -85,9 +93,23 @@ def generate_validation_sample(
         lambda x: hashlib.sha256(str(x).encode()).hexdigest()[:12]
     )
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    sampled.to_csv(output_path, index=False)
-    return output_path
+    labeling_path.parent.mkdir(parents=True, exist_ok=True)
+    sampled[["sample_id", "excerpt"]].assign(human_ai_mention="").to_csv(
+        labeling_path, index=False
+    )
+    scored_cols = [
+        "sample_id",
+        "document_id",
+        "firm_id",
+        "ticker",
+        "fiscal_year",
+        "form_type",
+        "ai_mention_count",
+        "density_bin",
+        "keyword_predicted",
+    ]
+    sampled[scored_cols].to_csv(scores_path, index=False)
+    return labeling_path, scores_path
 
 
 def _density_bin(mention_count: int) -> str:

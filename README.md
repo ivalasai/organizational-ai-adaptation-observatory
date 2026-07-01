@@ -27,7 +27,7 @@ This repository is data infrastructure, not a research paper. It produces struct
 
 **Financial controls:** not yet merged, pending manual Compustat export — see `load_compustat_export()` in `src/oaa_observatory/financial_controls/compustat_import.py`. The default panel ships with attention signals only.
 
-**Classifier validation:** not complete until you fill `human_ai_mention` (0 or 1) in `data/validation/attention_labels.csv` and run `oaa validation run`. This is the highest-priority next step — do not add patents/jobs/deployment layers until validation metrics exist and the placebo check above looks clean.
+**Classifier validation:** not complete until you fill `human_ai_mention` (0 or 1) in `data/validation/attention_labeling.csv` — a **blind** file with only `sample_id` and `excerpt` (no keyword counts). Write your labeling rule in `docs/validation/attention_classifier_validation.md` first, then run `oaa validation run`. Do not open `attention_scores.csv` while labeling. Patents/jobs/deployment wait until validation metrics exist and the placebo check looks clean on the labeled subsample.
 
 ---
 
