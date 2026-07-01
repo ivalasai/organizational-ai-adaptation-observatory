@@ -1,24 +1,12 @@
-# Core runtime dependencies (mirrors pyproject.toml for non-uv workflows)
 duckdb>=1.1.0
+httpx>=0.27.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
 loguru>=0.7.0
 pandas>=2.2.0
-polars>=1.0.0
 pyarrow>=17.0.0
 pydantic>=2.9.0
 pydantic-settings>=2.5.0
 pyyaml>=6.0.0
 rich>=13.9.0
 typer>=0.12.0
-
-# Optional: uncomment as needed
-# wrds>=3.2.0
-# spacy>=3.7.0
-
-# Development
-# mypy>=1.13.0
-# pandas-stubs>=2.2.0
-# pre-commit>=4.0.0
-# pytest>=8.3.0
-# pytest-cov>=5.0.0
-# ruff>=0.8.0
-# types-PyYAML>=6.0.0

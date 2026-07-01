@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
-"""Run all enabled pipelines sequentially."""
+"""Run SEC pipeline, validation sample, and panel build."""
 
 from __future__ import annotations
 
-from oaa_observatory.cli import pipeline_run
-from oaa_observatory.utils.logging import configure_logging
-
-PIPELINES = ["sec", "earnings_calls", "patents", "jobs", "products"]
+from oaa_observatory.cli import panel_build, pipeline_run, validation_run, validation_sample
 
 
 def main() -> None:
-    configure_logging(level="INFO")
-    for source in PIPELINES:
-        print(f"\n=== Running {source} pipeline ===")
-        pipeline_run(source=source, log_level="INFO")
+    pipeline_run(source="sec", log_level="INFO")
+    validation_sample()
+    validation_run()
+    panel_build()
 
 
 if __name__ == "__main__":

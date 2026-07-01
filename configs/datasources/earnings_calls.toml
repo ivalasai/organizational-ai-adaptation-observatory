@@ -1,7 +1,0 @@
-name = "earnings_calls"
-enabled = true
-signal_layer = "attention"
-raw_subdir = "earnings_calls"
-intermediate_subdir = "earnings_calls"
-features_subdir = "attention/earnings_calls"
-start_year = 2010

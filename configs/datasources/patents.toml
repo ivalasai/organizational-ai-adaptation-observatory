@@ -1,9 +1,0 @@
-name = "patents"
-enabled = true
-signal_layer = "investment"
-raw_subdir = "patents"
-intermediate_subdir = "patents"
-features_subdir = "investment/patents"
-start_year = 2010
-
-cpc_prefixes = ["G06N", "G06F18", "G06F40", "G10L15"]

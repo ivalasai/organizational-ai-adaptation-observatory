@@ -1,321 +1,153 @@
 # Organizational AI Adaptation Observatory
 
-**Longitudinal firm-level AI adaptation signal infrastructure from public and commercial sources.**
+**SEC filing attention signals for a fixed S&P 500 pilot universe, 2015–2026.**
 
-[![CI](https://github.com/organizational-ai-adaptation/organizational-ai-adaptation-observatory/actions/workflows/ci.yml/badge.svg)](https://github.com/organizational-ai-adaptation/organizational-ai-adaptation-observatory/actions/workflows/ci.yml)
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+This repository is data infrastructure, not a research paper. It produces structured firm-year evidence from public SEC filings. It does not compute adaptation indices, composite scores, or latent constructs.
 
 ---
 
-## Motivation
+## What exists today
 
-Empirical research on organizational AI adaptation requires clean, reproducible, longitudinal data about what firms **discuss**, **invest in**, and **deploy**. Today, every research team rebuilds these datasets from scratch — downloading SEC filings, parsing earnings calls, counting patents, scraping job postings — with inconsistent methods and non-comparable results.
+| Component | Status |
+|-----------|--------|
+| Fixed firm universe (100 S&P 500 firms, static CSV) | Real, committed |
+| Entity resolution (ticker → CIK via SEC `company_tickers.json`) | Real |
+| SEC 10-K / 10-Q ingestion (2015–2026) | Real |
+| Firm-year attention features (`ai_mention_count`, `ai_mention_share`, `document_count`) | Real |
+| Firm-year panel builder | Real |
+| Classifier validation workflow (labeling CSV + metrics script) | Real — **metrics pending your labels** |
+| Financial controls (`load_compustat_export`) | Scaffold only — manual CSV import, not in default panel |
 
-The Observatory solves this the way **WRDS** solves financial data or **Compustat** solves accounting data: it provides the infrastructure. Researchers bring the theory.
+## What is explicitly out of scope
 
-> Compustat doesn't know what ROA means theoretically. It simply provides clean infrastructure. This repository does the same for organizational AI signals.
+- Patents, job postings, earnings calls, product/deployment signals
+- WRDS API integration or stored WRDS credentials (permanently — licensed data enters only via files you place on disk)
+- Composite indices, adaptation scores, governance signals
+- Econometric analysis or regression code
 
-## What This Repository Is
+**Financial controls:** not yet merged, pending manual Compustat export — see `load_compustat_export()` in `src/oaa_observatory/financial_controls/compustat_import.py`. The default panel ships with attention signals only.
 
-- A **modular data pipeline** that ingests public and commercial sources
-- A **canonical entity resolution** system mapping GVKEY, CIK, ticker, CUSIP, and PERMNO to stable firm identifiers
-- A **firm-year panel builder** that joins signal layers into structured evidence tables
-- **Reproducible infrastructure** designed for 5–10 empirical papers over many years
-
-## What This Repository Is Not
-
-- Not an AI Adaptation Index, readiness score, or maturity model
-- Not a sentiment analyzer or hype detector
-- Not tied to any single paper, theory, or construct
-- Not a source of governance signals (CAO appointments, board committees, etc.)
-- Not a regression toolkit or econometric framework
-
-Researchers operationalize adaptation constructs downstream. The Observatory provides the evidence.
-
----
-
-## Signal Layers
-
-Three orthogonal layers of organizational AI evidence:
-
-| Layer | Question | Data Sources | Example Outputs |
-|-------|----------|--------------|-----------------|
-| **Attention** | What does the firm discuss? | SEC filings, earnings calls, annual reports | `ai_mention_count`, `ai_mention_share`, `document_count` |
-| **Investment** | What does the firm invest in? | Patents, job postings, hiring data | `ai_patent_count`, `ai_job_posting_count`, `ai_hiring_intensity` |
-| **Deployment** | What does the firm ship? | Product launches, API releases, documentation | `product_launch_count`, `api_launch_count`, `total_deployment_events` |
-
-Each layer outputs **firm-year structured evidence** — counts, shares, and event tallies. No composite indices. No latent variables.
-
----
-
-## Architecture
-
-```
-                    ┌─────────────────────────────────────────┐
-                    │         External Data Sources            │
-                    │  SEC EDGAR │ Earnings Calls │ USPTO     │
-                    │  Job Boards │ Product Pages │ WRDS       │
-                    └──────────┬──────────────────────────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   Entity Resolution  │
-                    │  GVKEY/CIK/Ticker →  │
-                    │     firm_id (OAA-)   │
-                    └──────────┬──────────┘
-                               │
-          ┌────────────────────┼────────────────────┐
-          │                    │                    │
-   ┌──────▼──────┐     ┌──────▼──────┐     ┌──────▼──────┐
-   │  Attention   │     │ Investment  │     │ Deployment  │
-   │  Pipeline    │     │  Pipeline   │     │  Pipeline   │
-   └──────┬──────┘     └──────┬──────┘     └──────┬──────┘
-          │                    │                    │
-          └────────────────────┼────────────────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │    Panel Builder     │
-                    │  firm_id × year join │
-                    └──────────┬──────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   Quality Checks     │
-                    │   Parquet / CSV /    │
-                    │   DuckDB Exports     │
-                    └─────────────────────┘
-```
-
-### Data Stages
-
-```
-raw/  →  intermediate/  →  features/  →  panel/  →  exports/
-```
-
-Raw data is **never overwritten**. Every stage is reproducible from configuration files.
-
-See [docs/architecture.md](docs/architecture.md) for detailed design documentation.
-
----
-
-## Installation
-
-**Requirements:** Python 3.12+, [uv](https://docs.astral.sh/uv/) (recommended) or pip.
-
-```bash
-git clone https://github.com/organizational-ai-adaptation/organizational-ai-adaptation-observatory.git
-cd organizational-ai-adaptation-observatory
-
-# Install with uv
-uv sync --all-extras
-
-# Or with pip
-pip install -e ".[dev]"
-
-# Configure credentials
-cp .env.example .env
-# Edit .env with WRDS credentials, SEC user agent, etc.
-
-# Install pre-commit hooks
-uv run pre-commit install
-```
+**Classifier validation:** not complete until you fill `human_ai_mention` (0 or 1) in `data/validation/attention_labels.csv` and run `oaa validation run`. This is the highest-priority next step — do not add patents/jobs/deployment layers until validation metrics exist and the placebo check above looks clean.
 
 ---
 
 ## Quick Start
 
-```bash
-# List available pipelines
-oaa pipeline list
+No credentials required. Optional `.env` only overrides the SEC User-Agent string.
 
-# Run a single data source pipeline
+```bash
+uv sync --all-extras
+
+# 1. Ingest SEC filings, parse text, extract features
 oaa pipeline run sec
 
-# Register firm identifiers
-oaa entity register --gvkey 001690 --cik 0000320193 --ticker AAPL
+# 2. Generate labeling sample + validation template
+oaa validation sample
+oaa validation run
 
-# Resolve an identifier
-oaa entity resolve ticker AAPL
-
-# Build firm-year panel from feature tables
-oaa panel build --config configs/pipeline/panel_builder.toml
-
-# Validate panel quality
-oaa panel validate data/panel/firm_year_panel.parquet
+# 3. Build firm-year panel
+oaa panel build
 ```
 
-### Python API
+After a full run you should see approximately:
 
-```python
-from oaa_observatory.entity_resolution import EntityResolver, IdentifierType
-from oaa_observatory.panel_builder import PanelBuilder
-from oaa_observatory.sec import SECFilingsPipeline
+- **4,500+** raw filing files under `data/raw/sec/`
+- **~1,200** firm-year rows in `data/panel/firm_year_panel.parquet`
+- Non-zero `ai_mention_count`, `ai_mention_share`, and `document_count` values
 
-# Run SEC attention pipeline
-pipeline = SECFilingsPipeline()
-pipeline.run()
+**Why ~1,204 rows, not exactly 1,200?** The panel includes one row per firm-year that has at least one filing in 2015–2026, not a fixed 100×12 grid. The number of firms per year rises from ~94 (2015) to ~106 (2024+) as EDGAR history fills in; there are no duplicate firm-year keys.
 
-# Build panel
-builder = PanelBuilder.from_config_file("configs/pipeline/panel_builder.toml")
-panel_path = builder.run()
-```
-
-See [examples/](examples/) for complete workflows.
-
----
-
-## Repository Structure
-
-```
-organizational-ai-adaptation-observatory/
-├── README.md
-├── LICENSE
-├── pyproject.toml
-├── Makefile
-├── configs/                    # TOML configuration files
-│   ├── default.toml
-│   ├── datasources/            # Per-source configs
-│   └── pipeline/               # Panel builder config
-├── schemas/                    # JSON schemas for output tables
-├── src/oaa_observatory/        # Main package
-│   ├── config/                 # Settings and config loading
-│   ├── entity_resolution/      # Canonical firm_id mapping
-│   ├── ingestion/              # BasePipeline interface
-│   ├── sec/                    # Attention: SEC filings
-│   ├── earnings_calls/         # Attention: transcripts
-│   ├── patents/                # Investment: AI patents
-│   ├── jobs/                   # Investment: job postings
-│   ├── products/               # Deployment: product evidence
-│   ├── nlp/                    # Keyword counting utilities
-│   ├── panel_builder/          # Firm-year panel assembly
-│   ├── quality_checks/         # Data validation
-│   └── wrds/                   # WRDS client wrapper
-├── tests/
-├── examples/
-├── scripts/
-├── docs/
-└── data/                       # Pipeline data (not committed)
-```
-
----
-
-## Configuration
-
-All data sources are configured via TOML files. No hardcoded paths.
-
-```toml
-# configs/datasources/sec.toml
-name = "sec_filings"
-signal_layer = "attention"
-start_year = 2010
-ai_keywords = ["machine learning", "artificial intelligence"]
-```
-
-Credentials live only in `.env`:
+**Sanity checks (run these yourself):**
 
 ```bash
-WRDS_USERNAME=your_username
-WRDS_PASSWORD=your_password
-SEC_USER_AGENT=YourName your.email@university.edu
+# Placebo: mentions by year should be near-zero pre-2018, ramping 2022+
+uv run python -c "
+import pandas as pd
+p = pd.read_parquet('data/panel/firm_year_panel.parquet')
+print(p.groupby('year')['ai_mention_count'].agg(['sum','mean', lambda s: (s>0).mean()]))
+"
+```
+
+Observed pattern on the pilot ingest: 2015 mean ≈ 0.01 mentions/firm-year; 2024–2025 mean ≈ 9–12. Early years are essentially flat; the ramp is concentrated in 2023–2025.
+
+Re-running `oaa pipeline run sec` is idempotent: existing raw files and manifest entries are skipped.
+
+The first full download for 100 firms (2015–2026) may take 30–60 minutes due to SEC rate limits.
+
+---
+
+## Firm universe
+
+Static list: `data/universe/firm_universe.csv`
+
+- First 100 S&P 500 constituents by ticker (alphabetical)
+- Sourced from [Wikipedia List of S&P 500 companies](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies), snapshot Jan 2026
+- GVKEY and PERMNO are intentionally absent; CIK is populated by the SEC bootstrap step
+
+Regenerate the universe CSV (optional):
+
+```bash
+uv run python scripts/build_firm_universe.py
 ```
 
 ---
 
-## Data Sources
+## Manual Compustat import (when you have WRDS access)
 
-| Source | Layer | Status | Access |
-|--------|-------|--------|--------|
-| SEC EDGAR (10-K, 10-Q, 8-K) | Attention | Skeleton | Public |
-| Earnings call transcripts | Attention | Skeleton | Licensed (Refinitiv, FactSet) |
-| USPTO patents (CPC G06N) | Investment | Skeleton | Public / WRDS |
-| AI job postings | Investment | Skeleton | Public / Licensed |
-| Product & API launches | Deployment | Skeleton | Public |
-| Compustat / CRSP identifiers | Entity resolution | Supported | WRDS |
-
-Full ingestion implementations are added incrementally. The architecture supports plugging in new sources without modifying existing pipelines.
-
----
-
-## Entity Resolution
-
-All sources map to a canonical `firm_id` (format: `OAA-{hash}`).
-
-Supported identifiers: **GVKEY**, **CIK**, **Ticker**, **CUSIP**, **PERMNO**, **Company name**.
+Export a CSV from WRDS yourself with columns: `gvkey, cik, fyear, at, roa, sic, emp`.
 
 ```python
-from oaa_observatory.entity_resolution import EntityResolver
+from oaa_observatory.financial_controls import load_compustat_export, merge_compustat_into_panel
 
-resolver = EntityResolver()
-firm_id = resolver.resolve("ticker", "AAPL")
+comp = load_compustat_export("path/to/your_compustat_export.csv")
+# merge_compustat_into_panel(panel, comp, mapping)  — call manually when ready
 ```
 
-See [docs/entity_resolution.md](docs/entity_resolution.md).
+This function never contacts WRDS.
 
 ---
 
-## Design Philosophy
+## Design philosophy
 
-1. **Infrastructure, not theory.** The Observatory collects signals; researchers define constructs.
-2. **Evidence, not indices.** Output columns are counts and shares, not composite scores.
-3. **Reproducibility by default.** Config-driven pipelines, immutable raw data, staged outputs.
-4. **Modularity.** Each data source is an independent pipeline sharing common interfaces.
-5. **Extensibility.** New sources, signal layers, and identifier types plug in without refactoring.
+1. **Infrastructure, not theory** — structured evidence only; researchers define constructs downstream.
+2. **Evidence, not indices** — counts and shares, not composite scores.
+3. **Reproducibility** — config-driven pipelines, immutable raw data, staged outputs.
+4. **Manual licensed data** — WRDS/Compustat data enters only via files you export and place on disk.
+
+---
+
+## Repository layout
+
+```
+data/universe/firm_universe.csv     # static firm list
+data/raw/sec/                       # immutable downloaded filings
+data/intermediate/sec/              # parsed document text
+data/features/attention/sec/        # firm-year attention features
+data/panel/                         # assembled panel
+data/validation/                    # classifier labeling CSV
+configs/datasources/sec.toml
+src/oaa_observatory/
+  sec/                              # EDGAR client + pipeline
+  entity_resolution/
+  panel_builder/
+  financial_controls/               # manual Compustat import only
+  validation/
+docs/validation/
+tests/
+```
 
 ---
 
 ## Development
 
 ```bash
-make install-dev   # Install with dev dependencies
-make lint          # Ruff linter
-make format        # Auto-format
-make typecheck     # Mypy strict mode
-make test          # Pytest
-make test-cov      # With coverage
-```
-
-See [docs/contributing.md](docs/contributing.md) for contribution guidelines.
-
----
-
-## Limitations
-
-- **v0.1 is architecture-first.** Ingestion pipelines are skeletons; researchers provide raw data or connect licensed sources.
-- **No sentiment analysis.** Attention signals are mention counts, not tone or hype measures.
-- **Public data only.** No internal telemetry, employee monitoring, or proprietary ERP data.
-- **US-centric defaults.** Identifier systems and data sources default to US public markets; international extension is planned.
-- **No governance layer.** CAO appointments, board AI committees, and similar signals are explicitly excluded.
-
----
-
-## Roadmap
-
-- [ ] SEC EDGAR bulk download and parsing
-- [ ] WRDS Compustat identifier bootstrap script
-- [ ] USPTO patent CPC classification pipeline
-- [ ] Refinitiv earnings call transcript connector
-- [ ] Job posting aggregator (Revelio, LinkUp, or similar)
-- [ ] Product launch detection from press releases and changelogs
-- [ ] International firm support (ISIN, SEDOL, LEI)
-- [ ] Polars-native pipeline option for large-scale processing
-- [ ] Databricks / cloud execution templates
-- [ ] Versioned dataset releases with DOI
-
----
-
-## Citation
-
-If you use this infrastructure in your research, please cite the repository:
-
-```bibtex
-@software{oaa_observatory,
-  title  = {Organizational AI Adaptation Observatory},
-  year   = {2026},
-  url    = {https://github.com/organizational-ai-adaptation/organizational-ai-adaptation-observatory}
-}
+make test       # unit tests (EDGAR API mocked in CI)
+make lint
+make typecheck
 ```
 
 ---
 
 ## License
 
-MIT License. See [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

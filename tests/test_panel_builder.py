@@ -50,7 +50,7 @@ class TestPanelBuilder:
         builder = PanelBuilder(config=config, settings=settings)
         panel = builder.build()
         assert len(panel) == 3
-        assert "attention_sec_ai_mention_count" in panel.columns
+        assert "ai_mention_count" in panel.columns
 
     def test_quality_checks_pass(self) -> None:
         panel = pd.DataFrame(

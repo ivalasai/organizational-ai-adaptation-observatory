@@ -1,14 +1,8 @@
 [panel]
 output_path = "data/panel/firm_year_panel.parquet"
-export_formats = ["parquet", "csv"]
-min_year = 2010
+export_formats = ["parquet"]
+min_year = 2015
+max_year = 2026
 
-feature_tables = [
-    "attention/sec",
-    "attention/earnings_calls",
-    "investment/patents",
-    "investment/jobs",
-    "deployment/products",
-]
-
+feature_tables = ["attention/sec"]
 join_keys = ["firm_id", "year"]

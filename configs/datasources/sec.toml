@@ -4,8 +4,10 @@ signal_layer = "attention"
 raw_subdir = "sec"
 intermediate_subdir = "sec"
 features_subdir = "attention/sec"
-start_year = 2010
-filing_types = ["10-K", "10-Q", "8-K"]
+start_year = 2015
+end_year = 2026
+universe_path = "data/universe/firm_universe.csv"
+filing_types = ["10-K", "10-Q"]
 
 ai_keywords = [
     "artificial intelligence",

@@ -64,6 +64,8 @@ data/exports/**
 output/**
 !output/.gitkeep
 
+.tools/
+
 # DuckDB
 *.duckdb
 *.duckdb.wal

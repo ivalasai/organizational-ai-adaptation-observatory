@@ -1,0 +1,104 @@
+# Static firm universe: first 100 S&P 500 constituents by ticker (alphabetical).
+# Source: Wikipedia List of S&P 500 companies (https://en.wikipedia.org/wiki/List_of_S%26P_500_companies), snapshot Jan 2026.
+# GVKEY and PERMNO are intentionally absent; CIK is populated by SEC bootstrap.
+ticker,company_name,sector
+A,Agilent Technologies,Health Care
+AAPL,Apple Inc.,Information Technology
+ABBV,AbbVie,Health Care
+ABNB,Airbnb,Consumer Discretionary
+ABT,Abbott Laboratories,Health Care
+ACGL,Arch Capital Group,Financials
+ACN,Accenture,Information Technology
+ADBE,Adobe Inc.,Information Technology
+ADI,Analog Devices,Information Technology
+ADM,Archer Daniels Midland,Consumer Staples
+ADP,Automatic Data Processing,Industrials
+ADSK,Autodesk,Information Technology
+AEE,Ameren,Utilities
+AEP,American Electric Power,Utilities
+AES,AES Corporation,Utilities
+AFL,Aflac,Financials
+AIG,American International Group,Financials
+AIZ,Assurant,Financials
+AJG,Arthur J. Gallagher & Co.,Financials
+AKAM,Akamai Technologies,Information Technology
+ALB,Albemarle Corporation,Materials
+ALGN,Align Technology,Health Care
+ALL,Allstate,Financials
+ALLE,Allegion,Industrials
+AMAT,Applied Materials,Information Technology
+AMCR,Amcor,Materials
+AMD,Advanced Micro Devices,Information Technology
+AME,Ametek,Industrials
+AMGN,Amgen,Health Care
+AMP,Ameriprise Financial,Financials
+AMT,American Tower,Real Estate
+AMZN,Amazon,Consumer Discretionary
+ANET,Arista Networks,Information Technology
+AON,Aon plc,Financials
+AOS,A. O. Smith,Industrials
+APA,APA Corporation,Energy
+APD,Air Products,Materials
+APH,Amphenol,Information Technology
+APO,Apollo Global Management,Financials
+APP,AppLovin,Information Technology
+APTV,Aptiv,Consumer Discretionary
+ARE,Alexandria Real Estate Equities,Real Estate
+ARES,Ares Management,Financials
+ATO,Atmos Energy,Utilities
+AVB,AvalonBay Communities,Real Estate
+AVGO,Broadcom,Information Technology
+AVY,Avery Dennison,Materials
+AWK,American Water Works,Utilities
+AXON,Axon Enterprise,Industrials
+AXP,American Express,Financials
+AZO,AutoZone,Consumer Discretionary
+BA,Boeing,Industrials
+BAC,Bank of America,Financials
+BALL,Ball Corporation,Materials
+BAX,Baxter International,Health Care
+BBY,Best Buy,Consumer Discretionary
+BDX,Becton Dickinson,Health Care
+BEN,Franklin Resources,Financials
+BF-B,Brown–Forman,Consumer Staples
+BG,Bunge Global,Consumer Staples
+BIIB,Biogen,Health Care
+BKNG,Booking Holdings,Consumer Discretionary
+BKR,Baker Hughes,Energy
+BLDR,Builders FirstSource,Industrials
+BLK,BlackRock,Financials
+BMY,Bristol Myers Squibb,Health Care
+BNY,BNY Mellon,Financials
+BR,Broadridge Financial Solutions,Industrials
+BRK-B,Berkshire Hathaway,Financials
+BRO,Brown & Brown,Financials
+BSX,Boston Scientific,Health Care
+BX,Blackstone Inc.,Financials
+BXP,"BXP, Inc.",Real Estate
+C,Citigroup,Financials
+CAH,Cardinal Health,Health Care
+CARR,Carrier Global,Industrials
+CASY,Casey's,Consumer Staples
+CAT,Caterpillar Inc.,Industrials
+CB,Chubb Limited,Financials
+CBOE,Cboe Global Markets,Financials
+CBRE,CBRE Group,Real Estate
+CCI,Crown Castle,Real Estate
+CCL,Carnival Corporation,Consumer Discretionary
+CDNS,Cadence Design Systems,Information Technology
+CDW,CDW Corporation,Information Technology
+CEG,Constellation Energy,Utilities
+CF,CF Industries,Materials
+CFG,Citizens Financial Group,Financials
+CHD,Church & Dwight,Consumer Staples
+CHRW,C.H. Robinson,Industrials
+CHTR,Charter Communications,Communication Services
+CI,Cigna,Health Care
+CIEN,Ciena,Information Technology
+CINF,Cincinnati Financial,Financials
+CL,Colgate-Palmolive,Consumer Staples
+CLX,Clorox,Consumer Staples
+CMCSA,Comcast,Communication Services
+CME,CME Group,Financials
+CMG,Chipotle Mexican Grill,Consumer Discretionary
+CMI,Cummins,Industrials

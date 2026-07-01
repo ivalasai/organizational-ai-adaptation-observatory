@@ -12,8 +12,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Runtime settings for the observatory.
 
-    Credentials and path overrides are loaded from environment variables.
-    Pipeline behavior is configured via TOML/YAML files in ``configs/``.
+    Pipeline behavior is configured via TOML files in ``configs/``.
+    Optional ``.env`` overrides paths and logging only — no paid API credentials.
     """
 
     model_config = SettingsConfigDict(
@@ -31,10 +31,8 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     log_file: Path | None = Field(default=None, description="Optional log file path")
 
-    # External credentials (never hardcoded)
-    wrds_username: str | None = None
-    wrds_password: str | None = None
-    sec_user_agent: str = "OAA Observatory research@example.com"
+    # SEC fair-access User-Agent (name + email). Not a secret credential.
+    sec_user_agent: str = "OAA-Observatory indarsvalasai@gmail.com"
 
     @property
     def raw_dir(self) -> Path:

@@ -1,15 +1,11 @@
-# Default observatory configuration
-
 [data]
 root = "data"
-output = "output"
 
 [logging]
 level = "INFO"
 
-[pipeline]
-default_start_year = 2010
-
 [entity_resolution]
 mapping_path = "data/intermediate/entity_resolution/mappings.parquet"
-priority = ["gvkey", "cik", "cusip", "permno", "ticker", "company_name"]
+
+[universe]
+path = "data/universe/firm_universe.csv"

@@ -24,4 +24,5 @@ class TestConfigLoader:
         raw = load_config(Path("configs/datasources/sec.toml"))
         config = SECConfig.model_validate(raw)
         assert config.signal_layer == "attention"
-        assert len(config.ai_keywords) > 0
+        assert config.filing_types == ["10-K", "10-Q"]
+        assert config.start_year == 2015

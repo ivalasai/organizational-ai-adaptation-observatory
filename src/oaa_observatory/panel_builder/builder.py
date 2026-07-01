@@ -55,13 +55,14 @@ class PanelBuilder:
     def _feature_path(self, table_name: str) -> Path:
         return self.settings.features_dir / table_name / "firm_year.parquet"
 
-    def _load_feature_table(self, table_name: str) -> pd.DataFrame | None:
+    def _load_feature_table(self, table_name: str, prefix: bool) -> pd.DataFrame | None:
         path = self._feature_path(table_name)
         if not path.exists():
             logger.warning("Feature table not found: {}", path)
             return None
         df = pd.read_parquet(path)
-        # Prefix columns to avoid collisions (except join keys)
+        if not prefix:
+            return df
         join_keys = set(self.config.join_keys)
         rename_map = {
             col: f"{table_name.replace('/', '_')}_{col}"
@@ -83,7 +84,7 @@ class PanelBuilder:
 
         panel: pd.DataFrame | None = None
         for table_name in self.config.feature_tables:
-            df = self._load_feature_table(table_name)
+            df = self._load_feature_table(table_name, prefix=panel is not None)
             if df is None or df.empty:
                 continue
 
@@ -99,7 +100,6 @@ class PanelBuilder:
                     df,
                     on=self.config.join_keys,
                     how="outer",
-                    suffixes=("", f"_{table_name.replace('/', '_')}"),
                 )
 
         if panel is None:
