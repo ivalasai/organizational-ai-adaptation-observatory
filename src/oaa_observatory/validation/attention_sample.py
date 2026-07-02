@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -29,6 +30,30 @@ def _excerpt(text: str, length: int = EXCERPT_CHARS) -> str:
     if len(text) <= length:
         return text
     return text[:length] + "..."
+
+
+def _excerpt_around_first_keyword(
+    text: str, keyword_regex: re.Pattern[str], length: int = EXCERPT_CHARS
+) -> str:
+    """Return an excerpt that actually contains an AI keyword match when possible."""
+    text = text.strip()
+    if len(text) <= length:
+        return text
+
+    m = keyword_regex.search(text)
+    if not m:
+        return _excerpt(text, length=length)
+
+    # Center a window around the first keyword match.
+    center = (m.start() + m.end()) // 2
+    start = max(0, center - length // 2)
+    end = min(len(text), start + length)
+    excerpt = text[start:end]
+    if start > 0:
+        excerpt = "..." + excerpt
+    if end < len(text):
+        excerpt = excerpt + "..."
+    return excerpt
 
 
 def generate_validation_sample(
@@ -59,7 +84,10 @@ def generate_validation_sample(
     """
     if scores_path is None:
         scores_path = labeling_path.parent / "attention_scores.csv"
-    counter = KeywordCounter(keywords or DEFAULT_KEYWORDS)
+
+    kw_list = keywords or DEFAULT_KEYWORDS
+    kw_regex = re.compile("|".join(map(re.escape, kw_list)), flags=re.IGNORECASE)
+    counter = KeywordCounter(kw_list)
     docs = pd.read_parquet(documents_path)
     if docs.empty:
         msg = "No documents available for validation sampling"
@@ -78,7 +106,9 @@ def generate_validation_sample(
                 "form_type": row.get("form_type", ""),
                 "ai_mention_count": counts.mention_count,
                 "density_bin": _density_bin(counts.mention_count),
-                "excerpt": _excerpt(text),
+                # Excerpt selection is important for validation: the snippet shown
+                # to human labelers should reflect where the keyword hit occurs.
+                "excerpt": _excerpt_around_first_keyword(text, kw_regex, length=EXCERPT_CHARS),
                 "keyword_predicted": int(counts.mention_count > 0),
             }
         )
