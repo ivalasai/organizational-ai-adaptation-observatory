@@ -4,11 +4,7 @@ Source labels: `data/validation/attention_labeling.csv`
 
 ## Labeling rule
 
-_Write your one-sentence rule here before labeling begins, then apply it consistently._
-
-> Example: Count as AI mention (1) only when the excerpt substantively discusses AI/ML
-> strategy, products, investment, or operations — not generic risk-factor boilerplate
-> that merely names "artificial intelligence" without firm-specific content.
+Count as AI mention (1) only when the excerpt describes the firm's substantive AI/ML activity or concrete intent (either forward-looking plans/investment/strategy or realized deployment/operations), and label 0 for generic boilerplate/risk-factor language that only mentions AI/ML without firm-specific action, product, or operational context.
 
 ## Status
 

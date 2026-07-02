@@ -88,7 +88,13 @@ def generate_validation_sample(
     sampled_parts: list[pd.DataFrame] = []
     for (_, _), group in pool.groupby(["fiscal_year", "density_bin"], group_keys=False):
         sampled_parts.append(group.sample(n=min(len(group), per_bin), random_state=42))
-    sampled = pd.concat(sampled_parts, ignore_index=True).head(sample_size)
+    sampled = pd.concat(sampled_parts, ignore_index=True)
+    # Avoid truncation bias: `groupby(..., sort=True)` + `.head(sample_size)` would
+    # over-select earlier years. Downsample uniformly across the stratified set.
+    if len(sampled) > sample_size:
+        sampled = sampled.sample(n=sample_size, random_state=42).reset_index(
+            drop=True
+        )
     sampled["sample_id"] = sampled["document_id"].apply(
         lambda x: hashlib.sha256(str(x).encode()).hexdigest()[:12]
     )
