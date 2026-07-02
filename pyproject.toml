@@ -1,7 +1,7 @@
 [project]
 name = "oaa-observatory"
 version = "0.2.0"
-description = "Longitudinal firm-level AI adaptation signal infrastructure from public and commercial sources"
+description = "Longitudinal firm-level AI adaptation signal infrastructure from public sources"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.12"
